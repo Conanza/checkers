@@ -1,5 +1,5 @@
 require "colorize"
-require_relative "piece.rb"
+# require_relative "piece.rb"
 
 class Board
   attr_reader :board
@@ -28,15 +28,11 @@ class Board
         pos = [i, j]
 
         if (i + j).odd?
-          add_piece(Piece.new(self, color: :black, pos: pos), pos) if i.between?(0, 2)
-          add_piece(Piece.new(self, color: :red, pos: pos), pos) if i.between?(5, 7)
+          self[pos] = Piece.new(self, color: :black, pos: pos)if i.between?(0, 2)
+          self[pos] = Piece.new(self, color: :red, pos: pos) if i.between?(5, 7)
         end
       end
     end
-  end
-
-  def add_piece(piece, pos)
-    self[pos] = piece
   end
 
   # def move_piece(start_pos, end_pos, piece)

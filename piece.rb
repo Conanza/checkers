@@ -1,12 +1,17 @@
 require "colorize"
 
-class InvalidPosition < ArgumentError
+class InvalidMove < ArgumentError
   def message
     "You can't make that move"
   end
 end
 
 class Piece
+  MOVE_DIFFS = { 
+    slides: [[1, -1], [1, 1]], 
+    jumps:  [[2, -2], [2, 2]] 
+  }
+
   attr_accessor :pos
   attr_reader :color
 
@@ -31,18 +36,25 @@ class Piece
       @board[end_pos] = self
 
       true
-    rescue InvalidPosition => e
+    rescue InvalidMove => e
       puts e.message
       false
     end
   end
 
-  # removes piece after jump
   def perform_jump(end_pos)
     begin 
-      raise InvalidMove
-    rescue
+      raise InvalidMove unless valid_jump_moves.include?(end_pos)
+      
+      pos_between = jumped_pos(pos, end_pos)
 
+      @board[pos] = nil
+      @board[pos_between] = nil
+      pos = end_pos
+      @board[end_pos] = self
+    rescue InvalidMove => e
+      puts e.message
+      false
     end
   end
 
@@ -52,27 +64,25 @@ class Piece
   end
 
   def valid_slide_moves
-    slide_moves.compact.select { |end_pos| valid_pos?(end_pos) }
+    slide_moves.select { |end_pos| valid_pos?(end_pos) }
   end
 
   def valid_jump_moves
-    jump_moves.compact.select { |end_pos| valid_pos?(end_pos) }
+    jump_moves.select { |end_pos| valid_pos?(end_pos) }
   end
 
   def jump_moves
     row, col = pos
-    moves = move_diffs[:jumps].map do |(drow, dcol)|
-      pos_between = [row + (drow / 2 * @move_dir), col + (dcol / 2)]
-      next unless pos_between.all? { |coord| coord.between?(0, 7) }
-      next if @board.empty?(pos_between)
-      next if @board[pos_between].color == color 
-      
+    all_jumps = MOVE_DIFFS[:jumps].map do |(drow, dcol)|
       [row + (drow * @move_dir), col + dcol]
     end
+
+    all_jumps.reject { |jump| @board.empty?(jumped_pos(pos, jump)) }
+      .reject { |jump| @board[jumped_pos(pos, jump)].color == color }
   end
 
   def slide_moves
-    move_diffs[:slides].map do |(drow, dcol)|
+    MOVE_DIFFS[:slides].map do |(drow, dcol)|
       row, col = pos
 
       [row + (drow * @move_dir), col + dcol]
@@ -88,12 +98,11 @@ class Piece
   # def move_dirs
   #   { south: 1, north: -1 }
   # end
-
-  def move_diffs
-    { 
-      slides: [[1, -1], [1, 1]], 
-      jumps:  [[2, -2], [2, 2]] 
-    }
+  def jumped_pos(start_pos, end_pos)
+    start_row, start_col = start_pos
+    drow, dcol = end_pos[0] - start_row, end_pos[1] - start_col
+    
+    [start_row + drow / 2, start_col + dcol / 2]
   end
 end
 
@@ -113,13 +122,12 @@ if $PROGRAM_NAME == __FILE__
 
 
   p board[test_pos].valid_slide_moves == [[3, 0], [3, 2]]
-  p board[[2, 7]].valid_slide_moves
-  p board[[2, 3]].valid_slide_moves
+  p board[[2, 7]].valid_slide_moves.none? { |mv| mv.nil? }
+  p board[[2, 3]].valid_slide_moves.none? { |mv| mv.nil? }
 
-  p board[[5, 2]].jump_moves.include?([3, 4]) == true
-  p board[[2, 7]].jump_moves.include?([4, 5]) == true
+  p board[[2, 7]].valid_jump_moves == [[4, 5]]
 
-  p board[[5, 2]].valid_jump_moves
+  p board[[5, 2]].valid_jump_moves == [[3, 4]]
 
 
   board[[2, 1]].perform_slide([3, 0])
