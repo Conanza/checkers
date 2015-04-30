@@ -17,8 +17,7 @@ class Piece
     jumps:  [[2, -2], [2, 2], [-2, -2], [-2, 2]]
   }
 
-  attr_accessor :pos
-  attr_reader :color, :kinged
+  attr_reader :pos, :color, :kinged
 
   def initialize(board, status)
     @color, @pos = status[:color], status[:pos]
@@ -37,7 +36,7 @@ class Piece
       raise InvalidMove unless valid_slide_moves.include?(end_pos)
 
       @board[pos] = nil
-      pos = end_pos
+      @pos = end_pos
       @board[end_pos] = self
       @kinged = true if promote?
 
@@ -56,7 +55,7 @@ class Piece
 
       @board[pos] = nil
       @board[pos_between] = nil
-      pos = end_pos
+      @pos = end_pos
       @board[end_pos] = self
       @kinged = true if promote?
 
@@ -131,24 +130,24 @@ if $PROGRAM_NAME == __FILE__
   board.render
 
 
-  p board[test_pos].valid_slide_moves == [[3, 0], [3, 2]]
-  p board[[2, 7]].valid_slide_moves.none? { |mv| mv.nil? }
-  p board[[2, 3]].valid_slide_moves.none? { |mv| mv.nil? }
+  # p board[test_pos].valid_slide_moves == [[3, 0], [3, 2]]
+  # p board[[2, 7]].valid_slide_moves.none? { |mv| mv.nil? }
+  # p board[[2, 3]].valid_slide_moves.none? { |mv| mv.nil? }
 
-  p board[[2, 7]].valid_jump_moves == [[4, 5]]
+  # p board[[2, 7]].valid_jump_moves == [[4, 5]]
 
-  p board[[5, 2]].valid_jump_moves == [[3, 4]]
+  # p board[[5, 2]].valid_jump_moves == [[3, 4]]
 
 
-  p board[[2, 1]].perform_slide([3, 0])
-  board.render
+  # p board[[2, 1]].perform_slide([3, 0])
+  # board.render
 
-  p board[[5, 4]].perform_jump([3, 2])
-  board.render
-  board[[5, 0]].perform_slide([4, 1])
-  board.render
-  p board[[3, 0]].perform_jump([5, 2])
-  p board[[1, 6]].perform_jump([3, 4])
+  # p board[[5, 4]].perform_jump([3, 2])
+  # board.render
+  # board[[5, 0]].perform_slide([4, 1])
+  # board.render
+  # p board[[3, 0]].perform_jump([5, 2])
+  # p board[[1, 6]].perform_jump([3, 4])
 
   board[[4, 1]] = nil
   board[[7, 4]] = nil
@@ -166,7 +165,8 @@ if $PROGRAM_NAME == __FILE__
   p board[[7, 4]].pos
 
 
-  # board[[7, 4]].perform_slide([6, 3])
-  # p board[[6, 3]].slide_moves
-  # p board[[6, 3]].jump_moves
+  board[[7, 4]].perform_slide([6, 3])
+  board.render
+  p board[[6, 3]].valid_slide_moves
+  p board[[6, 3]].valid_jump_moves
 end
