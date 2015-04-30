@@ -27,9 +27,9 @@ class Board
       row.each_with_index do |col, j|
         pos = [i, j]
 
-        if pos.inject(:+).odd?
-          add_piece(Piece.new(:black, self), pos) if i.between?(0, 2)
-          add_piece(Piece.new(:red, self), pos) if i.between?(5, 7)
+        if (i + j).odd?
+          add_piece(Piece.new(self, color: :black, pos: pos), pos) if i.between?(0, 2)
+          add_piece(Piece.new(self, color: :red, pos: pos), pos) if i.between?(5, 7)
         end
       end
     end
@@ -39,10 +39,27 @@ class Board
     self[pos] = piece
   end
 
+  # def move_piece(start_pos, end_pos, piece)
+  #   self[start_pos] = nil
+  #   self[end_pos] = piece
+  #   self
+  # end
+
+  def empty?(pos)
+    self[pos].nil?
+  end
+
   def render
-    board.each do |row|
-      row.each do |piece|
-        print(piece.nil? ? "_" : "#{piece.display[piece.color]}")
+    # system "clear"
+    print "   "
+    8.times { |i| print " #{i} " }
+    puts
+    board.each_with_index do |row, i|
+      print " #{i} "
+      row.each_with_index do |piece, j|
+        background = (i + j).even? ? :on_yellow : :on_white
+        print(piece.nil? ? "   ".send(background) : 
+          " #{piece.display[piece.color]} ".send(background))
       end
       puts
     end
