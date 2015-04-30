@@ -12,14 +12,19 @@ class Piece
     jumps:  [[2, -2], [2, 2]] 
   }
 
+  KING_DIFFS = {
+    slides: [[1, -1], [1, 1], [-1, -1], [-1, 1]],
+    jumps:  [[2, -2], [2, 2], [-2, -2], [-2, 2]]
+  }
+
   attr_accessor :pos
-  attr_reader :color
+  attr_reader :color, :kinged
 
   def initialize(board, status)
     @color, @pos = status[:color], status[:pos]
     @board = board
     @kinged = false
-    @move_dir = @color == :black ? 1 : -1
+    @dir = @color == :black ? 1 : -1
   end
 
   def display
@@ -34,6 +39,7 @@ class Piece
       @board[pos] = nil
       pos = end_pos
       @board[end_pos] = self
+      @kinged = true if promote?
 
       true
     rescue InvalidMove => e
@@ -52,15 +58,17 @@ class Piece
       @board[pos_between] = nil
       pos = end_pos
       @board[end_pos] = self
+      @kinged = true if promote?
+
+      true
     rescue InvalidMove => e
       puts e.message
       false
     end
   end
 
-  # check to see if promote after each move
-  # reached the back row?
   def promote?
+    color == :black && pos[0] == 7 || color == :red && pos[0] == 0
   end
 
   def valid_slide_moves
@@ -73,19 +81,24 @@ class Piece
 
   def jump_moves
     row, col = pos
-    all_jumps = MOVE_DIFFS[:jumps].map do |(drow, dcol)|
-      [row + (drow * @move_dir), col + dcol]
+
+    jumps = if @kinged 
+      KING_DIFFS[:jumps].map { |(drow, dcol)| [row + drow, col + dcol] }
+    else
+      MOVE_DIFFS[:jumps].map { |(drow, dcol)| [row + (drow * @dir), col + dcol] }
     end
 
-    all_jumps.reject { |jump| @board.empty?(jumped_pos(pos, jump)) }
+    jumps.reject { |jump| @board.empty?(jumped_pos(pos, jump)) }
       .reject { |jump| @board[jumped_pos(pos, jump)].color == color }
   end
 
   def slide_moves
-    MOVE_DIFFS[:slides].map do |(drow, dcol)|
-      row, col = pos
+    row, col = pos
 
-      [row + (drow * @move_dir), col + dcol]
+    if @kinged
+      KING_DIFFS[:slides].map { |(drow, dcol)| [row + drow, col + dcol] }
+    else
+      MOVE_DIFFS[:slides].map { |(drow, dcol)| [row + (drow * @dir), col + dcol] }
     end
   end
 
@@ -95,9 +108,6 @@ class Piece
 
   # private?
 
-  # def move_dirs
-  #   { south: 1, north: -1 }
-  # end
   def jumped_pos(start_pos, end_pos)
     start_row, start_col = start_pos
     drow, dcol = end_pos[0] - start_row, end_pos[1] - start_col
@@ -130,6 +140,33 @@ if $PROGRAM_NAME == __FILE__
   p board[[5, 2]].valid_jump_moves == [[3, 4]]
 
 
-  board[[2, 1]].perform_slide([3, 0])
+  p board[[2, 1]].perform_slide([3, 0])
   board.render
+
+  p board[[5, 4]].perform_jump([3, 2])
+  board.render
+  board[[5, 0]].perform_slide([4, 1])
+  board.render
+  p board[[3, 0]].perform_jump([5, 2])
+  p board[[1, 6]].perform_jump([3, 4])
+
+  board[[4, 1]] = nil
+  board[[7, 4]] = nil
+  board[[6, 3]] = Piece.new(board, color: :black, pos: [6, 3])
+  board.render
+  p board[[6, 3]].kinged
+  p board[[6, 3]].color
+  p board[[6, 3]].pos
+
+  board[[6, 3]].perform_slide([7, 4])
+  board.render
+
+  p board[[7, 4]].kinged
+  p board[[7, 4]].color
+  p board[[7, 4]].pos
+
+
+  # board[[7, 4]].perform_slide([6, 3])
+  # p board[[6, 3]].slide_moves
+  # p board[[6, 3]].jump_moves
 end
