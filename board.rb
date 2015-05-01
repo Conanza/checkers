@@ -22,7 +22,7 @@ class Board
   def dup
     new_board = Board.new(false)
 
-    @board.flatten.compact.each do |piece|
+    pieces.each do |piece|
       new_pos = piece.pos.dup
 
       new_board[new_pos] = Piece.new(new_board, color: piece.color,
@@ -37,8 +37,12 @@ class Board
     self[pos].nil?
   end
 
+  def over?
+    pieces.all? { |piece| piece.color == :red } ||
+      pieces.all? { |piece| piece.color == :black }
+  end
+
   def render
-    # system "clear"
     print "   "
     8.times { |i| print " #{(97 + i).chr.upcase} " }
     puts
@@ -75,6 +79,10 @@ class Board
 
       self
     end
+
+    def pieces
+      @board.flatten.compact
+    end
 end
 
 if $PROGRAM_NAME == __FILE__
@@ -89,9 +97,9 @@ if $PROGRAM_NAME == __FILE__
   # dup_board.render
 
   # TEST SETUP
-  new_board[[4, 3]] = Piece.new(new_board, color: :black, pos: [4, 3])
-  new_board[[3, 6]] = Piece.new(new_board, color: :red, pos: [3, 6])
-  new_board.render
+  # new_board[[4, 3]] = Piece.new(new_board, color: :black, pos: [4, 3])
+  # new_board[[3, 6]] = Piece.new(new_board, color: :red, pos: [3, 6])
+  # new_board.render
 
   # SLIDE MOVES TEST
   # p new_board[[2, 1]].valid_slide_moves == [[3, 0], [3, 2]]
@@ -101,9 +109,10 @@ if $PROGRAM_NAME == __FILE__
   # p new_board[[5, 2]].valid_jump_moves == [[3, 4]]
 
   # PERFORM MOVES TEST
-  new_board[[1, 0]] = nil
-  new_board.render
-  new_board[[5, 4]].perform_moves([[5, 4], [3, 2], [4, 1]])
-  new_board[[5, 4]].perform_moves([[5, 4], [3, 2], [1, 0]])
-  new_board.render
+  # new_board[[1, 0]] = nil
+  # new_board.render
+  # new_board[[5, 4]].perform_moves([[5, 4], [3, 2], [4, 1]])
+  # new_board[[5, 4]].perform_moves([[5, 4], [3, 2], [1, 0]])
+  # new_board.render
 end
+

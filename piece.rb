@@ -28,7 +28,8 @@ class Piece
   end
 
   def display
-    { red: "☻".red, black: "☻".black }
+    @kinged ? { red: "♚".red, black: "♚".black } : 
+      { red: "☻".red, black: "☻".black }
   end
 
   def perform_moves(seq)
@@ -38,11 +39,11 @@ class Piece
   protected
 
     def perform_moves!(seq)
-      if seq.length == 2
-        return if perform_slide(seq[1])
-        raise InvalidMoveError unless perform_jump(seq[1]) 
+      if seq.length == 1
+        return if perform_slide(seq.first)
+        raise InvalidMoveError unless perform_jump(seq.first) 
       else
-        seq[1..-1].each do |jump|
+        seq.each do |jump|
           raise InvalidMoveError unless perform_jump(jump)
         end
       end
@@ -150,3 +151,5 @@ class Piece
       slide_moves.select { |end_pos| valid_pos?(end_pos) }
     end
 end
+
+
