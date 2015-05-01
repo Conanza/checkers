@@ -1,5 +1,6 @@
 require_relative "board.rb"
 require_relative "piece.rb"
+require "yaml"
   
 class InvalidInputError < ArgumentError
   def message
@@ -51,7 +52,17 @@ class Checkers
         retry
       end
 
-      switch_turns
+      puts "S to save. E to exit. Enter to continue."
+      option = gets.chomp
+      case option.downcase
+      when "s"
+        switch_turns
+        save
+      when "e"
+        exit
+      else
+        switch_turns
+      end
     end
 
     switch_turns
@@ -60,8 +71,10 @@ class Checkers
 
   def save
     File.open("saved_chess_game.yml", "w") do |f|
-      f.puts(self.to_yml)
+      f.puts(self.to_yaml)
     end
+
+    exit 0
   end
 
   private
@@ -111,5 +124,7 @@ if $PROGRAM_NAME == __FILE__
     new_game.play
   else
     file = ARGV.shift
+    old_game = YAML.load_file(file)
+    old_game.play
   end
 end
