@@ -1,4 +1,5 @@
 require "colorize"
+require "byebug"
 
 class InvalidMoveError < ArgumentError
   def message
@@ -33,7 +34,7 @@ class Piece
 
   # single moves
   def perform_slide(end_pos)
-    if valid_jump_moves(end_pos).empty? && valid_slide_moves.include?(end_pos)
+    if valid_jump_moves.empty? && valid_slide_moves.include?(end_pos)
 
       @board[pos] = nil
       @pos = end_pos
@@ -42,8 +43,6 @@ class Piece
 
       true
     else
-      raise InvalidMoveError
-
       false
     end
   end
@@ -60,42 +59,43 @@ class Piece
 
       true
     else
-      raise InvalidMoveError 
-
       false
     end
   end
 
-  def perform_moves
-    # check valid_move_Seq?
-    # perform_moves! or raise error
-
+  def perform_moves(seq)
+    valid_move_seq?(seq) ? perform_moves!(seq) : raise(InvalidMoveError)
   end
 
-  def perform_moves!(sequence)
-    if sequence.length == 1
-      return true if perform_slide(sequence.first)
-      return true if perform_jump(sequence.first) 
+  def perform_moves!(seq)
+    if seq.length == 2
+      return if perform_slide(seq.last)
+      raise unless perform_jump(seq.last) 
     else
-      sequence.each do |jump|
-        return false unless perform_jump(jump)
+      seq.each do |jump|
+        raise InvalidMoveError unless perform_jump(jump)
       end
-
-      true
     end
+
+    nil
   end
 
-  def valid_move_seq?(sequence)
+  def valid_move_seq?(seq)
     dup_board = @board.dup
-    dup_piece = Piece.new(dup_board, color: self.color, 
-                                     kinged: self.kinged,
-                                     pos: self.pos)
+    dup_piece = Piece.new(
+      dup_board, 
+      color: self.color, 
+      kinged: self.kinged,
+      pos: self.pos
+    )
+
     begin 
-      dup_piece.perform_moves!(sequence)
+      dup_piece.perform_moves!(seq)
 
       true
     rescue InvalidMoveError => e
       puts e.message
+
       false
     end
   end
@@ -113,7 +113,7 @@ class Piece
   end
 
   def jump_moves
-    row, col = pos
+    row, col = @pos
 
     jumps = if @kinged 
       KING_DIFFS[:jumps].map { |(drow, dcol)| [row + drow, col + dcol] }
@@ -121,12 +121,14 @@ class Piece
       MOVE_DIFFS[:jumps].map { |(drow, dcol)| [row + (drow * @dir), col + dcol] }
     end
 
-    jumps.reject { |jump| @board.empty?(jumped_pos(pos, jump)) }
+    jumps.select do |jump|
+      jumped_pos(pos, jump).all? { |coord| coord.between?(0,7) }
+    end.reject { |jump| @board.empty?(jumped_pos(pos, jump)) }
       .reject { |jump| @board[jumped_pos(pos, jump)].color == color }
   end
 
   def slide_moves
-    row, col = pos
+    row, col = @pos
 
     if @kinged
       KING_DIFFS[:slides].map { |(drow, dcol)| [row + drow, col + dcol] }
@@ -143,9 +145,9 @@ class Piece
 
   def jumped_pos(start_pos, end_pos)
     start_row, start_col = start_pos
-    drow, dcol = end_pos[0] - start_row, end_pos[1] - start_col
-    
-    [start_row + drow / 2, start_col + dcol / 2]
+    end_row, end_col = end_pos
+
+    [(start_row + end_row) / 2, (start_col + end_col) / 2]
   end
 end
 
@@ -182,11 +184,9 @@ if $PROGRAM_NAME == __FILE__
   board[[6, 3]] = Piece.new(board, color: :black, pos: [6, 3])
   board.render
 
-
   board[[6, 3]].perform_slide([7, 4])
+
   board.render
-
-
   board[[7, 4]].perform_slide([6, 3])
   board.render
   p board[[6, 3]].valid_slide_moves
