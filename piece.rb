@@ -69,10 +69,10 @@ class Piece
 
   def perform_moves!(seq)
     if seq.length == 2
-      return if perform_slide(seq.last)
-      raise unless perform_jump(seq.last) 
+      return if perform_slide(seq[1])
+      raise InvalidMoveError unless perform_jump(seq[1]) 
     else
-      seq.each do |jump|
+      seq[1..-1].each do |jump|
         raise InvalidMoveError unless perform_jump(jump)
       end
     end
@@ -168,27 +168,10 @@ if $PROGRAM_NAME == __FILE__
   # p board[[2, 7]].valid_jump_moves == [[4, 5]]
   # p board[[5, 2]].valid_jump_moves == [[3, 4]]
 
-
-  # p board[[2, 1]].perform_slide([3, 0])
-  # board.render
-
-  # p board[[5, 4]].perform_jump([3, 2])
-  # board.render
-  # board[[5, 0]].perform_slide([4, 1])
-  # board.render
-  # p board[[3, 0]].perform_jump([5, 2])
-  # p board[[1, 6]].perform_jump([3, 4])
-
-  board[[4, 1]] = nil
-  board[[7, 4]] = nil
-  board[[6, 3]] = Piece.new(board, color: :black, pos: [6, 3])
+  # PERFORM MOVES TEST
+  board[[1, 0]] = nil
   board.render
-
-  board[[6, 3]].perform_slide([7, 4])
-
+  board[[5, 4]].perform_moves([[5, 4], [3, 2], [4, 1]])
+  board[[5, 4]].perform_moves([[5, 4], [3, 2], [1, 0]])
   board.render
-  board[[7, 4]].perform_slide([6, 3])
-  board.render
-  p board[[6, 3]].valid_slide_moves
-  p board[[6, 3]].valid_jump_moves
 end

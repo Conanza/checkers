@@ -44,20 +44,23 @@ class Board
   def render
     # system "clear"
     print "   "
-    8.times { |i| print " #{(97 + i).chr.upcase} " }
+    # 8.times { |i| print " #{(97 + i).chr.upcase} " }
+    8.times { |i| print " #{i} " }
     puts
     @board.each_with_index do |row, i|
-      print " #{i + 1} "
+      print " #{i} "
       row.each_with_index do |piece, j|
         background = (i + j).even? ? :on_yellow : :on_white
         print(piece.nil? ? "   ".send(background) : 
           " #{piece.display[piece.color]} ".send(background))
       end
-      puts " #{i + 1} " 
+      puts " #{i} " 
     end
 
     print "   "
-    8.times { |i| print " #{(97 + i).chr.upcase} " }
+    # 8.times { |i| print " #{(97 + i).chr.upcase} " }
+    8.times { |i| print " #{i} " }
+
     puts
   end
 
