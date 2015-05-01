@@ -1,6 +1,6 @@
 require "colorize"
 
-class InvalidMove < ArgumentError
+class InvalidMoveError < ArgumentError
   def message
     "You can't make that move"
   end
@@ -19,10 +19,11 @@ class Piece
 
   attr_reader :pos, :color, :kinged
 
-  def initialize(board, status)
-    @color, @pos = status[:color], status[:pos]
+  def initialize(board, user_options)
+    options = { color: nil, pos: nil, kinged: false }.merge(user_options)
+
+    @color, @pos, @kinged = options[:color], options[:pos], options[:kinged]
     @board = board
-    @kinged = false
     @dir = @color == :black ? 1 : -1
   end
 
@@ -32,8 +33,7 @@ class Piece
 
   # single moves
   def perform_slide(end_pos)
-    begin
-      raise InvalidMove unless valid_slide_moves.include?(end_pos)
+    if valid_jump_moves(end_pos).empty? && valid_slide_moves.include?(end_pos)
 
       @board[pos] = nil
       @pos = end_pos
@@ -41,16 +41,15 @@ class Piece
       @kinged = true if promote?
 
       true
-    rescue InvalidMove => e
-      puts e.message
+    else
+      raise InvalidMoveError
+
       false
     end
   end
 
   def perform_jump(end_pos)
-    begin 
-      raise InvalidMove unless valid_jump_moves.include?(end_pos)
-      
+    if valid_jump_moves.include?(end_pos)      
       pos_between = jumped_pos(pos, end_pos)
 
       @board[pos] = nil
@@ -60,7 +59,42 @@ class Piece
       @kinged = true if promote?
 
       true
-    rescue InvalidMove => e
+    else
+      raise InvalidMoveError 
+
+      false
+    end
+  end
+
+  def perform_moves
+    # check valid_move_Seq?
+    # perform_moves! or raise error
+
+  end
+
+  def perform_moves!(sequence)
+    if sequence.length == 1
+      return true if perform_slide(sequence.first)
+      return true if perform_jump(sequence.first) 
+    else
+      sequence.each do |jump|
+        return false unless perform_jump(jump)
+      end
+
+      true
+    end
+  end
+
+  def valid_move_seq?(sequence)
+    dup_board = @board.dup
+    dup_piece = Piece.new(dup_board, color: self.color, 
+                                     kinged: self.kinged,
+                                     pos: self.pos)
+    begin 
+      dup_piece.perform_moves!(sequence)
+
+      true
+    rescue InvalidMoveError => e
       puts e.message
       false
     end
@@ -121,21 +155,15 @@ if $PROGRAM_NAME == __FILE__
   require_relative "board.rb"
   board = Board.new(true)
 
-  test_pos = [2, 1]
-  # p board[test_pos].jump_moves
-  # p board[test_pos].slide_moves
-
   board[[4, 3]] = Piece.new(board, color: :black, pos: [4, 3])
   board[[3, 6]] = Piece.new(board, color: :red, pos: [3, 6])
   board.render
 
-
-  # p board[test_pos].valid_slide_moves == [[3, 0], [3, 2]]
-  # p board[[2, 7]].valid_slide_moves.none? { |mv| mv.nil? }
-  # p board[[2, 3]].valid_slide_moves.none? { |mv| mv.nil? }
-
+  # SLIDE MOVES TEST
+  # p board[[2, 1]].valid_slide_moves == [[3, 0], [3, 2]]
+  
+  # JUMP MOVES TEST
   # p board[[2, 7]].valid_jump_moves == [[4, 5]]
-
   # p board[[5, 2]].valid_jump_moves == [[3, 4]]
 
 
@@ -153,16 +181,10 @@ if $PROGRAM_NAME == __FILE__
   board[[7, 4]] = nil
   board[[6, 3]] = Piece.new(board, color: :black, pos: [6, 3])
   board.render
-  p board[[6, 3]].kinged
-  p board[[6, 3]].color
-  p board[[6, 3]].pos
+
 
   board[[6, 3]].perform_slide([7, 4])
   board.render
-
-  p board[[7, 4]].kinged
-  p board[[7, 4]].color
-  p board[[7, 4]].pos
 
 
   board[[7, 4]].perform_slide([6, 3])

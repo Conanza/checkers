@@ -1,9 +1,7 @@
 require "colorize"
-# require_relative "piece.rb"
+require_relative "piece.rb"
 
 class Board
-  attr_reader :board
-
   def initialize(setup = true)
     @board = Array.new(8) { Array.new(8) }
 
@@ -23,7 +21,9 @@ class Board
   end
 
   def make_board(setup)
-    board.each_with_index do |row, i|
+    return self if setup == false
+
+    @board.each_with_index do |row, i|
       row.each_with_index do |col, j|
         pos = [i, j]
 
@@ -33,13 +33,9 @@ class Board
         end
       end
     end
-  end
 
-  # def move_piece(start_pos, end_pos, piece)
-  #   self[start_pos] = nil
-  #   self[end_pos] = piece
-  #   self
-  # end
+    self
+  end
 
   def empty?(pos)
     self[pos].nil?
@@ -48,25 +44,47 @@ class Board
   def render
     # system "clear"
     print "   "
-    8.times { |i| print " #{i} " }
+    8.times { |i| print " #{(97 + i).chr.upcase} " }
     puts
-    board.each_with_index do |row, i|
-      print " #{i} "
+    @board.each_with_index do |row, i|
+      print " #{i + 1} "
       row.each_with_index do |piece, j|
         background = (i + j).even? ? :on_yellow : :on_white
         print(piece.nil? ? "   ".send(background) : 
           " #{piece.display[piece.color]} ".send(background))
       end
-      puts
+      puts " #{i + 1} " 
     end
 
-    nil
+    print "   "
+    8.times { |i| print " #{(97 + i).chr.upcase} " }
+    puts
+  end
+
+  def dup
+    new_board = Board.new(false)
+
+    @board.flatten.compact.each do |piece|
+      new_pos = piece.pos.dup
+
+      new_board[new_pos] = Piece.new(new_board, color: piece.color,
+                                                pos: new_pos,
+                                                kinged: piece.kinged)
+    end
+
+    new_board
   end
 end
 
 if $PROGRAM_NAME == __FILE__
   new_board = Board.new(true)
-  p new_board.board.flatten.length
-  p new_board.render
-
+  # p new_board.board.flatten.length
+  
+  # Board#dup test
+  dup_board = new_board.dup
+  # p new_board.object_id
+  # p dup_board.object_id
+  dup_board[[2, 1]].perform_slide([3, 2])  
+  new_board.render
+  dup_board.render
 end
