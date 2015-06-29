@@ -1,0 +1,236 @@
+--- !ruby/object:Checkers
+board: &1 !ruby/object:Board
+  board:
+  - - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 0
+      - 1
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 0
+      - 3
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 0
+      - 5
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 0
+      - 7
+      color: :black
+      board: *1
+      dir: 1
+  - - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 1
+      - 0
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 1
+      - 2
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 1
+      - 4
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 1
+      - 6
+      color: :black
+      board: *1
+      dir: 1
+    - 
+  - - 
+    - 
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 2
+      - 3
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 2
+      - 5
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 2
+      - 7
+      color: :black
+      board: *1
+      dir: 1
+  - - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 3
+      - 0
+      color: :black
+      board: *1
+      dir: 1
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 5
+      - 0
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 5
+      - 2
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 5
+      - 4
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 5
+      - 6
+      color: :red
+      board: *1
+      dir: -1
+    - 
+  - - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 6
+      - 1
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 6
+      - 3
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 6
+      - 5
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 6
+      - 7
+      color: :red
+      board: *1
+      dir: -1
+  - - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 7
+      - 0
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 7
+      - 2
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 7
+      - 4
+      color: :red
+      board: *1
+      dir: -1
+    - 
+    - !ruby/object:Piece
+      kinged: false
+      pos:
+      - 7
+      - 6
+      color: :red
+      board: *1
+      dir: -1
+    - 
+current_turn: :red
